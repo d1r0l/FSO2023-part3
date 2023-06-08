@@ -1,12 +1,11 @@
 const express = require("express");
+const morgan = require("morgan");
+
 const app = express();
+const PORT = 3001;
 
 app.use(express.json());
-
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.use(morgan("tiny"));
 
 let persons = [
   {
@@ -30,6 +29,10 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 app.get("/api/persons", (request, response) => {
   response.json(persons);
@@ -77,8 +80,12 @@ app.post("/api/persons", (request, response) => {
     response.send("Number must be unique.").status(204).end();
   } else {
     const newId = Math.floor(Math.random() * 10000000);
-    newPerson.id = newId;
-    persons = persons.concat(newPerson);
+    savedPerson = {
+      id: newId,
+      name: newPerson.name,
+      number: newPerson.number
+    };
+    persons = persons.concat(savedPerson);
     response.status(200).end();
   }
 });
