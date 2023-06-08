@@ -58,7 +58,6 @@ app.get("/api/persons/:id", (request, response) => {
 app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   if (persons.find((person) => Number(person.id) === id) !== undefined) {
-    console.log(id);
     persons = persons.filter((person) => person.id !== id);
     response.status(200).end();
   } else {
@@ -66,6 +65,20 @@ app.delete("/api/persons/:id", (request, response) => {
   }
 });
 
-// app.post("/api/persons", (request, response) => {
-  
-// });
+app.post("/api/persons", (request, response) => {
+  const newPerson = request.body;
+  if (newPerson.name === undefined || newPerson.name.trim() === "") {
+    response.send("Name must be defined.").status(204).end();
+  } else if (newPerson.number === undefined || newPerson.number.trim() === "") {
+    response.send("Number must be defined.").status(204).end();
+  } else if (persons.find((person) => person.name === newPerson.name)) {
+    response.send("Name must be unique.").status(204).end();
+  } else if (persons.find((person) => person.number === newPerson.number)) {
+    response.send("Number must be unique.").status(204).end();
+  } else {
+    const newId = Math.floor(Math.random() * 10000000);
+    newPerson.id = newId;
+    persons = persons.concat(newPerson);
+    response.status(200).end();
+  }
+});
