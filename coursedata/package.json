@@ -1,0 +1,25 @@
+{
+  "name": "coursedata",
+  "version": "1.0.0",
+  "description": "Notes",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:ui": "rm -rf build && cd ../../FSO2023-part2/coursedata/ && npm run build && cp -r build ../../FSO2023-part3/coursedata/",
+    "deploy": "fly deploy",
+    "deploy:full": "npm run build:ui && npm run deploy",    
+    "logs:prod": "fly logs"
+  },
+  "author": "Roshkovan Dmitrii",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.2.14",
+    "nodemon": "^2.0.22"
+  }
+}
