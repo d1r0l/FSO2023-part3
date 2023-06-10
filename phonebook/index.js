@@ -80,9 +80,9 @@ app.delete("/api/persons/:id", (request, response) => {
 
 app.post("/api/persons", (request, response) => {
   const newPerson = request.body;
-  if (newPerson.name === undefined || newPerson.name.trim() === "") {
+  if (newPerson.name === undefined || !(typeof newPerson.name === "string") || newPerson.name.trim() === "") {
     response.send("Name must be defined.").status(204).end();
-  } else if (newPerson.number === undefined || newPerson.number.trim() === "") {
+  } else if (newPerson.number === undefined || newPerson.number.trim() === "" || newPerson.name.trim() === "") {
     response.send("Number must be defined.").status(204).end();
   } else if (persons.find((person) => person.name === newPerson.name)) {
     response.send("Name must be unique.").status(204).end();
@@ -96,6 +96,6 @@ app.post("/api/persons", (request, response) => {
       number: newPerson.number
     };
     persons = persons.concat(savedPerson);
-    response.status(200).end();
+    response.json(savedPerson);
   }
 });
