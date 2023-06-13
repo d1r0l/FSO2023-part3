@@ -9,14 +9,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf build && cd ../../FSO2023-part2/coursedata/ && npm run build && cp -r build ../../FSO2023-part3/coursedata/",
     "deploy": "fly deploy",
-    "deploy:full": "npm run build:ui && npm run deploy",    
+    "deploy:full": "npm run build:ui && npm run deploy",
     "logs:prod": "fly logs"
   },
   "author": "Roshkovan Dmitrii",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "dotenv": "^16.1.4",
+    "express": "^4.18.2",
+    "mongoose": "^7.2.3"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.2.14",
