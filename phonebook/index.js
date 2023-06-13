@@ -58,16 +58,15 @@ app.get("/info", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
-  Person.find({}).then(person => {
-    response.json(person)
-  }); 
+  Person.find({}).then((person) => {
+    response.json(person);
+  });
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  Person.findById(request.params.id)
-    .then((person) => {
-      response.json(person);
-    })
+  Person.findById(request.params.id).then((person) => {
+    response.json(person);
+  });
 });
 
 app.delete("/api/persons/:id", (request, response) => {
@@ -80,24 +79,34 @@ app.delete("/api/persons/:id", (request, response) => {
   }
 });
 
-app.post("/api/persons", (request, response) => {
-  const newPerson = request.body;
-  if (newPerson.name === undefined || !(typeof newPerson.name === "string") || newPerson.name.trim() === "") {
-    response.send("Name must be defined.").status(204).end();
-  } else if (newPerson.number === undefined || newPerson.number.trim() === "" || newPerson.name.trim() === "") {
-    response.send("Number must be defined.").status(204).end();
-  } else if (persons.find((person) => person.name === newPerson.name)) {
-    response.send("Name must be unique.").status(204).end();
-  } else if (persons.find((person) => person.number === newPerson.number)) {
-    response.send("Number must be unique.").status(204).end();
+app.post("/api/persons", async (request, response) => {
+  const nameFindQuery = await Person.find({ name: request.body.name });
+  const numberFindQuery = await Person.find({ number: request.body.number });
+
+  if (
+    request.body.name === undefined ||
+    !(typeof request.body.name === "string") ||
+    request.body.name.trim() === ""
+  ) {
+    response.status(422).send("Name must be defined.").end();
+  } else if (
+    request.body.number === undefined ||
+    !(typeof request.body.number === "string") ||
+    request.body.number.trim() === ""
+  ) {
+    response.status(422).send("Number must be defined.").end();
+  } else if (nameFindQuery[0]?.name) {
+    response.status(422).send("Name must be unique.").end();
+  } else if (numberFindQuery[0]?.number) {
+    response.status(422).send("Number must be unique.").end();
   } else {
-    const newId = Math.floor(Math.random() * 10000000);
-    savedPerson = {
-      id: newId,
-      name: newPerson.name,
-      number: newPerson.number
-    };
-    persons = persons.concat(savedPerson);
-    response.json(savedPerson);
+    const person = new Person({
+      name: request.body.name,
+      number: request.body.number,
+    });
+    person.save().then((result) => {
+      console.log(`Added ${result.name} number ${result.number} to phonebook`);
+      response.json(result);
+    });
   }
 });
