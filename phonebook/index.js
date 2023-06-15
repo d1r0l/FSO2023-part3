@@ -26,10 +26,12 @@ app.use(
 );
 
 app.get("/info", (request, response) => {
-  response.send(`
-      <p>Phonebook has info for ${persons.length} people</p>
-      <p>${Date()}</p>
-    `);
+  Person.estimatedDocumentCount().then((personCount) => {
+    response.send(`
+    <p>Phonebook has info for ${personCount} people</p>
+    <p>${Date()}</p>
+  `);
+  });
 });
 
 app.get("/api/persons", (request, response) => {
@@ -63,17 +65,27 @@ app.delete("/api/persons/:id", (request, response, next) => {
 });
 
 app.put("/api/persons/:id", (request, response, next) => {
-  Person.findByIdAndUpdate(
-    request.params.id,
-    { number: request.body.number },
-    { new: true }
-  ).then((person) => {
-    if (person) {
-      response.json(person);
-    } else {
-      response.status(404).end();
-    }
-  });
+  if (
+    request.body.number === undefined ||
+    !(typeof request.body.number === "string") ||
+    request.body.number.trim() === ""
+  ) {
+    response.status(422).send("Number must be defined.").end();
+  } else {
+    Person.findByIdAndUpdate(
+      request.params.id,
+      { number: request.body.number },
+      { new: true }
+    )
+      .then((person) => {
+        if (person) {
+          response.json(person);
+        } else {
+          response.status(404).end();
+        }
+      })
+      .catch((error) => next(error));
+  }
 });
 
 app.post("/api/persons", async (request, response) => {
@@ -102,7 +114,6 @@ app.post("/api/persons", async (request, response) => {
       number: request.body.number,
     });
     person.save().then((result) => {
-      console.log(`Added ${result.name} number ${result.number} to phonebook`);
       response.json(result);
     });
   }
@@ -118,7 +129,10 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
   if (error.name === "CastError") {
-    return response.status(400).send({ error: 'malformatted id' });
+    return response.status(400).send({ error: 'Malformatted id' });
+  }
+  if (error.name === "SyntaxError") {
+    return response.status(400).send({ error: 'Invalid data format' });
   }
 
   next(error);
