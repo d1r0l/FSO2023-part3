@@ -62,6 +62,20 @@ app.delete("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 
+app.put("/api/persons/:id", (request, response, next) => {
+  Person.findByIdAndUpdate(
+    request.params.id,
+    { number: request.body.number },
+    { new: true }
+  ).then((person) => {
+    if (person) {
+      response.json(person);
+    } else {
+      response.status(404).end();
+    }
+  });
+});
+
 app.post("/api/persons", async (request, response) => {
   const nameFindQuery = await Person.find({ name: request.body.name });
   const numberFindQuery = await Person.find({ number: request.body.number });
