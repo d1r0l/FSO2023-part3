@@ -18,9 +18,25 @@ const personSchema = new mongoose.Schema({
   name: {
     type: String,
     minLength: 3,
-    required: true
+    validate: {
+      validator: function (name) {
+        return /\S+/.test(name);
+      },
+      message: `Name must contain not only whitespaces.`
+    },
+    required: [true, 'Name must be defined']
   },
-  number: String,
+  number: {
+    type: String,
+    minLength: 8,
+    validate: {
+      validator: function (number) {
+        return /\d{2,3}-\d+$/.test(number);
+      },
+      message: `Number must be formed of two parts that are separated by -, the first part has two or three numbers and the second part also consists of numbers.`
+    },
+    required: [true, 'Number must be defined']
+  }
 })
 
 personSchema.set('toJSON', {
