@@ -7,7 +7,7 @@ const url = process.env.MONGODB_URI
 console.log('connecting to MongoDB')
 
 mongoose.connect(url)
-  .then(result => {
+  .then(() => {
     console.log('connected to MongoDB')
   })
   .catch((error) => {
@@ -20,9 +20,9 @@ const personSchema = new mongoose.Schema({
     minLength: 3,
     validate: {
       validator: function (name) {
-        return /\S+/.test(name);
+        return /\S+/.test(name)
       },
-      message: `Name must contain not only whitespaces.`
+      message: 'Name must contain not only whitespaces.'
     },
     required: [true, 'Name must be defined']
   },
@@ -31,9 +31,9 @@ const personSchema = new mongoose.Schema({
     minLength: 8,
     validate: {
       validator: function (number) {
-        return /\d{2,3}-\d+$/.test(number);
+        return /\d{2,3}-\d+$/.test(number)
       },
-      message: `Number must be formed of two parts that are separated by -, the first part has two or three numbers and the second part also consists of numbers.`
+      message: 'Number must be formed of two parts that are separated by -, the first part has two or three numbers and the second part also consists of numbers.'
     },
     required: [true, 'Number must be defined']
   }
