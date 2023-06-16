@@ -88,26 +88,14 @@ app.put("/api/persons/:id", (request, response, next) => {
   }
 });
 
-app.post("/api/persons", async (request, response) => {
+app.post("/api/persons", async (request, response, next) => {
   const nameFindQuery = await Person.find({ name: request.body.name });
   const numberFindQuery = await Person.find({ number: request.body.number });
 
-  if (
-    request.body.name === undefined ||
-    !(typeof request.body.name === "string") ||
-    request.body.name.trim() === ""
-  ) {
-    response.status(422).send("Name must be defined.").end();
-  } else if (
-    request.body.number === undefined ||
-    !(typeof request.body.number === "string") ||
-    request.body.number.trim() === ""
-  ) {
-    response.status(422).send("Number must be defined.").end();
-  } else if (nameFindQuery[0]?.name) {
-    response.status(422).send("Name must be unique.").end();
+  if (nameFindQuery[0]?.name) {
+    response.status(400).send("Name must be unique.").end();
   } else if (numberFindQuery[0]?.number) {
-    response.status(422).send("Number must be unique.").end();
+    response.status(400).send("Number must be unique.").end();
   } else {
     const person = new Person({
       name: request.body.name,
@@ -115,7 +103,8 @@ app.post("/api/persons", async (request, response) => {
     });
     person.save().then((result) => {
       response.json(result);
-    });
+    })
+    .catch((error) => next(error));
   }
 });
 
@@ -133,6 +122,9 @@ const errorHandler = (error, request, response, next) => {
   }
   if (error.name === "SyntaxError") {
     return response.status(400).send({ error: 'Invalid data format' });
+  }
+  if (error.name === "ValidationError") {
+    return response.status(400).send({ error: error.message });
   }
 
   next(error);
